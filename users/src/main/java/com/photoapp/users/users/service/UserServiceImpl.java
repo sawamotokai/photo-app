@@ -9,27 +9,31 @@ import com.photoapp.users.users.shared.UserDto;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
 
   UserRepository repo;
+  BCryptPasswordEncoder bCryptPasswordEncoder;
 
   @Autowired
-  public UserServiceImpl(UserRepository repo) {
+  public UserServiceImpl(UserRepository repo, BCryptPasswordEncoder bCryptPasswordEncoder) {
     this.repo = repo;
+    this.bCryptPasswordEncoder = bCryptPasswordEncoder;
   }
 
   @Override
   public UserDto createUser(UserDto userDto) {
     userDto.setUserId(UUID.randomUUID().toString());
+    userDto.setEncryptedPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
     ModelMapper modelMapper = new ModelMapper();
     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     UserEntity userEntity = modelMapper.map(userDto, UserEntity.class);
 
-    userEntity.setEncryptedPassword("test");
     repo.save(userEntity);
-    return userDto;
+
+    return modelMapper.map(userEntity, UserDto.class);
   }
 }
