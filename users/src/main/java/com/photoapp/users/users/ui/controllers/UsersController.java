@@ -2,8 +2,12 @@ package com.photoapp.users.users.ui.controllers;
 
 import javax.validation.Valid;
 
+import com.photoapp.users.users.service.UserService;
+import com.photoapp.users.users.shared.UserDto;
 import com.photoapp.users.users.ui.model.CreateUserReqModel;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +23,9 @@ public class UsersController {
   @Autowired
   private Environment env;
 
+  @Autowired
+  UserService service;
+
   @GetMapping("/status/check")
   public String status() {
     return "Running on port " + env.getProperty("local.server.port");
@@ -26,6 +33,10 @@ public class UsersController {
 
   @PostMapping
   public String createUser(@Valid @RequestBody CreateUserReqModel userDetails) {
+    ModelMapper modelMapper = new ModelMapper();
+    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+    UserDto userDto = modelMapper.map(userDetails, UserDto.class);
+    service.createUser(userDto);
     return "User Created";
   }
 
