@@ -2,7 +2,6 @@ package com.photoapp.users.users.security;
 
 import com.photoapp.users.users.service.UserService;
 
-import org.bouncycastle.jcajce.provider.keystore.BC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -36,7 +35,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
   }
 
   private AuthenticationFilter getAuthenticationFilter() throws Exception {
-    AuthenticationFilter filter = new AuthenticationFilter();
+    AuthenticationFilter filter = new AuthenticationFilter(userService, env, authenticationManager());
     filter.setAuthenticationManager(authenticationManager());
     return filter;
   }
