@@ -35,8 +35,9 @@ public class UsersController {
     return "Running on port " + env.getProperty("local.server.port");
   }
 
-  @PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
-      MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+  // @PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE,
+  // MediaType.APPLICATION_JSON_VALUE }, produces = {
+  // MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
   public ResponseEntity<CreateUserResModel> createUser(@Valid @RequestBody CreateUserReqModel userDetails) {
     ModelMapper modelMapper = new ModelMapper();
     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -45,5 +46,7 @@ public class UsersController {
     CreateUserResModel body = modelMapper.map(createdUser, CreateUserResModel.class);
     return ResponseEntity.status(HttpStatus.CREATED).body(body);
   }
+
+  // public Re
 
 }
