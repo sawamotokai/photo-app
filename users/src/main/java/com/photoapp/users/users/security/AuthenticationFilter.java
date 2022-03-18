@@ -9,12 +9,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.photoapp.users.users.service.UserService;
 import com.photoapp.users.users.shared.UserDto;
 import com.photoapp.users.users.ui.model.LoginReqModel;
 
-import org.apache.catalina.User;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,8 +24,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+// import io.jsonwebtoken.Jwts;
+// import io.jsonwebtoken.SignatureAlgorithm;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -53,11 +55,18 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
       Authentication authResult) throws IOException, ServletException {
     String username = ((User) authResult.getPrincipal()).getUsername();
     UserDto userDto = userService.getUserDetailsByEmail(username);
-    String token = Jwts.builder().setSubject(userDto.getUserId())
-        .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(env.getProperty("token.expiration_time"))))
-        .signWith(SignatureAlgorithm.HS512, env.getProperty("token.secret")).compact();
+    // String token = Jwts.builder().setSubject(userDto.getUserId())
+    // .setExpiration(new Date(System.currentTimeMillis() +
+    // Long.parseLong(env.getProperty("token.expiration_time"))))
+    // .signWith(SignatureAlgorithm.HS512,
+    // env.getProperty("token.secret")).compact();
+    String token = JWT.create()
+        .withSubject(userDto.getUserId())
+        .withExpiresAt(new Date(System.currentTimeMillis() + Long.parseLong(env.getProperty("token.expiration_time"))))
+        .withIssuedAt(new Date())
+        .withIssuer("PhotoApp")
+        .sign(Algorithm.HMAC256(env.getProperty("token.secret")));
     response.addHeader("token", token);
     response.addHeader("userId", userDto.getUserId());
   }
-
 }
