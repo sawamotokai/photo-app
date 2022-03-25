@@ -24,8 +24,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-// import io.jsonwebtoken.Jwts;
-// import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -55,17 +55,19 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
       Authentication authResult) throws IOException, ServletException {
     String username = ((User) authResult.getPrincipal()).getUsername();
     UserDto userDto = userService.getUserDetailsByEmail(username);
-    // String token = Jwts.builder().setSubject(userDto.getUserId())
-    // .setExpiration(new Date(System.currentTimeMillis() +
+    String token = Jwts.builder().setSubject(userDto.getUserId())
+        .setExpiration(new Date(System.currentTimeMillis() +
+            Long.parseLong(env.getProperty("token.expiration_time"))))
+        .signWith(SignatureAlgorithm.HS512,
+            env.getProperty("token.secret"))
+        .compact();
+    // String token = JWT.create()
+    // .withSubject(userDto.getUserId())
+    // .withExpiresAt(new Date(System.currentTimeMillis() +
     // Long.parseLong(env.getProperty("token.expiration_time"))))
-    // .signWith(SignatureAlgorithm.HS512,
-    // env.getProperty("token.secret")).compact();
-    String token = JWT.create()
-        .withSubject(userDto.getUserId())
-        .withExpiresAt(new Date(System.currentTimeMillis() + Long.parseLong(env.getProperty("token.expiration_time"))))
-        .withIssuedAt(new Date())
-        .withIssuer("PhotoApp")
-        .sign(Algorithm.HMAC256(env.getProperty("token.secret")));
+    // .withIssuedAt(new Date())
+    // .withIssuer("PhotoApp")
+    // .sign(Algorithm.HMAC256(env.getProperty("token.secret")));
     response.addHeader("token", token);
     response.addHeader("userId", userDto.getUserId());
   }
