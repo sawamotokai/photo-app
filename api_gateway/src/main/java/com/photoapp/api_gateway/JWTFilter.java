@@ -1,4 +1,4 @@
-package com.photoapp.users.users.security;
+package com.photoapp.api_gateway;
 
 import com.google.common.net.HttpHeaders;
 
@@ -53,12 +53,13 @@ public class JWTFilter extends AbstractGatewayFilterFactory<JWTFilter.Config> {
 
   private boolean isJWTValid(String jwt) {
     try {
-      String subject = Jwts.parser().setSigningKey(env.getProperty("jwt.secret")).parseClaimsJws(jwt).getBody()
+      String subject = Jwts.parser().setSigningKey(env.getProperty("token.secret")).parseClaimsJws(jwt).getBody()
           .getSubject();
-      if (subject == null || !subject.isEmpty()) {
+      if (subject == null || subject.isEmpty()) {
         return false;
       }
     } catch (Exception e) {
+      System.err.println(e.getMessage());
       return false;
     }
     return true;
