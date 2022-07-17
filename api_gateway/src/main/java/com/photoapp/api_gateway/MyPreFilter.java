@@ -15,10 +15,6 @@ public class MyPreFilter implements GlobalFilter {
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
     String path = exchange.getRequest().getPath().toString();
     System.out.println(path);
-    HttpHeaders headers = exchange.getRequest().getHeaders();
-    headers.keySet().forEach(key -> {
-      System.out.println(key + ": " + headers.get(key));
-    });
     return chain.filter(exchange);
   }
 
